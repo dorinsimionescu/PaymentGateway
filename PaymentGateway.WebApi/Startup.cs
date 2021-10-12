@@ -25,21 +25,7 @@ namespace PaymentGateway.WebApi
             services.AddMvc(o => o.EnableEndpointRouting = false);
 
             services.AddSingleton<IEventSender, EventSender>();
-            services.AddTransient<CreateAccount>();
-
-            //services.AddSingleton<AccountOptions>(new AccountOptions { InitialBalance = 200 });
-            services.AddSingleton<AccountOptions>(sp =>
-            {
-                var config = sp.GetRequiredService<IConfiguration>();
-                var options = new AccountOptions
-                {
-                    InitialBalance = config.GetValue("AccountOptions:InitialBalance", 0)
-                };
-                return options;
-            });
-
-            //services.Configure<AccountOptions>(Configuration.GetSection("AccountOptions"));
-
+            services.RegisterBusinessServices(Configuration);
             services.AddSwagger(Configuration["Identity:Authority"]);
 
             // NEVER USE

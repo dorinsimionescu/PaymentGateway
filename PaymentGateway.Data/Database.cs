@@ -17,7 +17,6 @@ namespace PaymentGateway.Data
         {
             if (instance == null) instance = new Database();
             return instance;
-
         }
 
         public void SaveChanges()

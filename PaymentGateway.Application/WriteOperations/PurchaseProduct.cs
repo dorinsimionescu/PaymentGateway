@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
-    class PurchaseProduct : IWriteOperation<Command>
+    public class PurchaseProduct : IWriteOperation<Command>
     {
         public IEventSender eventSender;
         public PurchaseProduct(IEventSender eventSender)
@@ -18,7 +18,6 @@ namespace PaymentGateway.Application.WriteOperations
             this.eventSender = eventSender;
         }
 
-      
         public void PerformOperation(Command operation)
         {
             Database database = Database.GetInstance();
