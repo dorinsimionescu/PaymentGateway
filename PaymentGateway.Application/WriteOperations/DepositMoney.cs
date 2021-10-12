@@ -4,34 +4,30 @@ using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
 using PaymentGateway.PublishedLanguage.WriteSide;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
     //cont si tranzactie, +valuta
-   public class DepositMoney : IWriteOperation<MakeNewDeposit>
+    public class DepositMoney : IWriteOperation<MakeNewDeposit>
     {
-        public IEventSender eventSender;
-        public DepositMoney(IEventSender eventSender)
+        private readonly IEventSender _eventSender;
+        private readonly Database _database;
+        public DepositMoney(IEventSender eventSender, Database database)
         {
-            this.eventSender = eventSender;
+            _eventSender = eventSender;
+            _database = database;
         }
-
 
         public void PerformOperation(MakeNewDeposit operation)
         {
-            var database = Database.GetInstance();
-            var person = database.Persons.FirstOrDefault(p => p.Cnp == operation.Cnp);
+            var person = _database.Persons.FirstOrDefault(p => p.Cnp == operation.Cnp);
             if (person == null)
             {
                 throw new Exception("User Not Found");
-
             }
 
-            var account = database.BankAccounts.FirstOrDefault(acc => acc.Iban == operation.Iban);
+            var account = _database.BankAccounts.FirstOrDefault(acc => acc.Iban == operation.Iban);
             if (account == null)
             {
                 throw new Exception("Account Not Found");
@@ -44,18 +40,13 @@ namespace PaymentGateway.Application.WriteOperations
             transaction.Type = "Depunere";
 
             account.Balance += operation.Amount;
-            database.SaveChanges();
+            _database.SaveChanges();
 
             var dm = new DepositMade();
             dm.Name = person.Name;
             dm.Amount = operation.Amount;
             dm.Iban = operation.Iban;
-            eventSender.SendEvent(dm);
-
-
-
-
-
+            _eventSender.SendEvent(dm);
         }
     }
 }

@@ -12,19 +12,20 @@ namespace PaymentGateway.Application.WriteOperations
 {
     public class PurchaseProduct : IWriteOperation<Command>
     {
-        public IEventSender eventSender;
-        public PurchaseProduct(IEventSender eventSender)
+        private readonly IEventSender _eventSender;
+        private readonly Database _database;
+
+        public PurchaseProduct(IEventSender eventSender, Database database)
         {
-            this.eventSender = eventSender;
+            _eventSender = eventSender;
+            _database = database;
         }
 
         public void PerformOperation(Command operation)
         {
-            Database database = Database.GetInstance();
-
             Transaction transaction = new Transaction();
 
-            BankAccount account = database.BankAccounts.FirstOrDefault(x => x.Iban == operation.Iban);
+            BankAccount account = _database.BankAccounts.FirstOrDefault(x => x.Iban == operation.Iban);
 
             if (account == null)
             {
@@ -33,7 +34,7 @@ namespace PaymentGateway.Application.WriteOperations
             double total = 0;
             foreach (var item in operation.Details)
             {
-                Product product = database.Products.FirstOrDefault(x => x.ID == item.idProd);
+                Product product = _database.Products.FirstOrDefault(x => x.ID == item.idProd);
 
                 if (product.Limit < item.Quantity)
                 {
@@ -54,12 +55,12 @@ namespace PaymentGateway.Application.WriteOperations
                 };
                 product.Limit -= item.Quantity;
 
-               
-                database.ProductXTransaction.Add(pxt);
+
+                _database.ProductXTransaction.Add(pxt);
             }
 
 
-            database.SaveChanges();
+            _database.SaveChanges();
         }
     }
 }

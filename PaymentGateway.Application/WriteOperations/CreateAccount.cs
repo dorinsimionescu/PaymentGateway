@@ -13,18 +13,20 @@ namespace PaymentGateway.Application.WriteOperations
     {
         private readonly IEventSender _eventSender;
         private readonly AccountOptions _accountOptions;
+        private readonly Database _database;
+        private readonly NewIban _ibanService;
 
-        public CreateAccount(IEventSender eventSender, AccountOptions accountOptions)
+        public CreateAccount(IEventSender eventSender, AccountOptions accountOptions, Database database, NewIban ibanService)
         {
             _eventSender = eventSender;
             _accountOptions = accountOptions;
+            _database = database;
+            _ibanService = ibanService;
         }
 
         public void PerformOperation(MakeNewAccount operation)
         {
-            var database = Database.GetInstance();
-
-            var user = database.Persons.FirstOrDefault(e => e.Cnp == operation.UniqueIdentifier);
+            var user = _database.Persons.FirstOrDefault(e => e.Cnp == operation.UniqueIdentifier);
             if (user == null)
             {
                 throw new Exception("User invalid");
@@ -35,13 +37,13 @@ namespace PaymentGateway.Application.WriteOperations
                 Type = operation.AccountType,
                 Currency = operation.Valuta,
                 Balance = _accountOptions.InitialBalance,
-                Iban = NewIban.GetNewIban(),
+                Iban = _ibanService.GetNewIban(),
                 Limit = 200
             };
 
-            database.BankAccounts.Add(account);
+            _database.BankAccounts.Add(account);
             user.Accounts.Add(account);
-            database.SaveChanges();
+            _database.SaveChanges();
 
             AccountMade ec = new AccountMade
             {

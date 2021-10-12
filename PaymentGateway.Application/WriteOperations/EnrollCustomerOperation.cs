@@ -1,36 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Abstractions;
+﻿using Abstractions;
 using PaymentGateway.Application.ReadOperations;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.WriteSide;
+using System;
 
 namespace PaymentGateway.Application.WriteOperations
 {
     public class EnrollCustomerOperation : IWriteOperation<EnrollCustomer>
     {
-        public IEventSender eventSender;
-        public EnrollCustomerOperation(IEventSender eventSender)
+        private readonly IEventSender _eventSender;
+        private readonly Database _database;
+        private readonly NewIban _ibanService;
+        public EnrollCustomerOperation(IEventSender eventSender, Database database, NewIban ibanService)
         {
-            this.eventSender = eventSender;
+            _eventSender = eventSender;
+            _database = database;
+            _ibanService = ibanService;
         }
 
         public void PerformOperation(EnrollCustomer operation)
         {
-            var random = new Random();
-
-            var database = Database.GetInstance();
-
             var customer = new Person();
-            
+
 
             customer.Cnp = operation.UniqueIdentifier;
             customer.Name = operation.Name;
-            if(operation.ClientType=="Company")
+            if (operation.ClientType == "Company")
             {
                 customer.TypeOfPerson = PersonType.Company;
             }
@@ -44,24 +40,23 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Unsupported person type");
             }
 
-            database.Persons.Add(customer);
+            _database.Persons.Add(customer);
 
             var account = new BankAccount();
             account.Type = operation.AccountType;
             account.Currency = operation.Valuta;
             account.Balance = 0;
-            account.Iban = NewIban.GetNewIban();
+            account.Iban = _ibanService.GetNewIban();
 
-            database.BankAccounts.Add(account);
+            _database.BankAccounts.Add(account);
 
-            database.SaveChanges();
+            _database.SaveChanges();
 
             EnrollCustomer ec = new EnrollCustomer();
             ec.Name = customer.Name;
             ec.UniqueIdentifier = customer.Cnp;
             ec.ClientType = operation.ClientType;
-            eventSender.SendEvent(ec);
-
+            _eventSender.SendEvent(ec);
 
         }
     }

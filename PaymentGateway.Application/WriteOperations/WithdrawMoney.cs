@@ -13,26 +13,25 @@ namespace PaymentGateway.Application.WriteOperations
 {
    public class WithdrawMoney : IWriteOperation<MakeWithdraw>
     {
-
         public IEventSender eventSender;
+        private readonly Database _database;
 
-        public WithdrawMoney(IEventSender eventSender)
+        public WithdrawMoney(IEventSender eventSender, Database database)
         {
             this.eventSender = eventSender;
+            _database = database;
         }
 
         public void PerformOperation(MakeWithdraw operation)
         {
-            var database = Database.GetInstance();
-
-            var account = database.BankAccounts.FirstOrDefault(acc => acc.Iban == operation.Iban);
+            var account = _database.BankAccounts.FirstOrDefault(acc => acc.Iban == operation.Iban);
             if(account== null)
             {
                 throw new Exception("invalid account");
 
             }
 
-            var user = database.Persons.FirstOrDefault(pers => pers.Cnp == operation.Cnp );
+            var user = _database.Persons.FirstOrDefault(pers => pers.Cnp == operation.Cnp );
             if (user == null)
             {
                 throw new Exception("User not found");
@@ -55,7 +54,7 @@ namespace PaymentGateway.Application.WriteOperations
             transaction.Date = DateTime.UtcNow;
             transaction.Type = "Withdraw";
             account.Balance -= operation.Amount;
-            database.SaveChanges();
+            _database.SaveChanges();
 
             WithdrawMade wm = new WithdrawMade();
             wm.Amount = operation.Amount;

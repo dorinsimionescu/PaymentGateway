@@ -35,6 +35,8 @@ namespace PaymentGateway
           
             // build
             var serviceProvider = services.BuildServiceProvider();
+            var database = serviceProvider.GetRequiredService<Database>();
+            var ibanService = serviceProvider.GetRequiredService<NewIban>();
 
             // use
             var enrollCustomer = new EnrollCustomer
@@ -59,12 +61,10 @@ namespace PaymentGateway
             makeAccountOperation.PerformOperation(makeAccountDetails);
 
 
-            var database = Database.GetInstance();
-
 
             var depositDetails = new MakeNewDeposit
             {
-                Iban = (Int64.Parse(NewIban.GetNewIban()) - 1).ToString(),
+                Iban = (Int64.Parse(ibanService.GetNewIban()) - 1).ToString(),
                 Cnp = "23",
                 Currency = "Eur",
                 Amount = 750
@@ -73,13 +73,11 @@ namespace PaymentGateway
             var makeDeposit = serviceProvider.GetRequiredService<DepositMoney>();
             makeDeposit.PerformOperation(depositDetails);
 
-
-
             var withdrawDetails = new MakeWithdraw
             {
                 Amount = 150,
                 Cnp = "23",
-                Iban = (Int64.Parse(NewIban.GetNewIban()) - 1).ToString()
+                Iban = (long.Parse(ibanService.GetNewIban()) - 1).ToString()
             };
 
             var makeWithdraw = serviceProvider.GetRequiredService<WithdrawMoney>();
@@ -135,7 +133,7 @@ namespace PaymentGateway
             var comanda = new Command
             {
                 Details = listaProduse,
-                Iban = (Int64.Parse(NewIban.GetNewIban()) - 1).ToString()
+                Iban = (Int64.Parse(ibanService.GetNewIban()) - 1).ToString()
             };
 
             var purchaseProduct = serviceProvider.GetRequiredService<PurchaseProduct>();
