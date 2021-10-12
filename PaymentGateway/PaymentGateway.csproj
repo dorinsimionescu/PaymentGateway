@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaymentGateway.Application\PaymentGateway.Application.csproj" />
+    <ProjectReference Include="..\PaymentGateway.ExternalService\PaymentGateway.ExternalService.csproj" />
+    <ProjectReference Include="..\PaymentGateway.Models\PaymentGateway.Models.csproj" />
+  </ItemGroup>
+
+</Project>
