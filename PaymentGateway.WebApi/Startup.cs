@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Abstractions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PaymentGateway.Application;
+using PaymentGateway.Application.WriteOperations;
+using PaymentGateway.ExternalService;
 using PaymentGateway.WebApi.Swagger;
 
 namespace PaymentGateway.WebApi
@@ -14,12 +18,32 @@ namespace PaymentGateway.WebApi
         {
             Configuration = configuration;
         }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddMvc(o => o.EnableEndpointRouting = false);
 
+            services.AddSingleton<IEventSender, EventSender>();
+            services.AddTransient<CreateAccount>();
+
+            //services.AddSingleton<AccountOptions>(new AccountOptions { InitialBalance = 200 });
+            services.AddSingleton<AccountOptions>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var options = new AccountOptions
+                {
+                    InitialBalance = config.GetValue("AccountOptions:InitialBalance", 0)
+                };
+                return options;
+            });
+
+            //services.Configure<AccountOptions>(Configuration.GetSection("AccountOptions"));
+
             services.AddSwagger(Configuration["Identity:Authority"]);
+
+            // NEVER USE
+            //services.BuildServiceProvider(); => serviceProvider...lista de "matrite"
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration configuration)

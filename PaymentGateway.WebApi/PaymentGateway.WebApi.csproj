@@ -12,4 +12,10 @@
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="$(SerilogSinksMSSqlServerPackageVersion)" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="$(SwashbuckleAspNetCore)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PaymentGateway.Application\PaymentGateway.Application.csproj" />
+    <ProjectReference Include="..\PaymentGateway.ExternalService\PaymentGateway.ExternalService.csproj" />
+    <ProjectReference Include="..\PaymentGateway.PublishedLanguage\PaymentGateway.PublishedLanguage.csproj" />
+  </ItemGroup>
 </Project>

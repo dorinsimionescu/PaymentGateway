@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PaymentGateway.PublishedLanguage.WriteSide
 {
-   public  class MakeNewAccount
+    public class MakeNewAccount
     {
         public string UniqueIdentifier { get; set; }
         public string AccountType { get; set; }

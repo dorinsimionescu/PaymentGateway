@@ -5,62 +5,49 @@ using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
 using PaymentGateway.PublishedLanguage.WriteSide;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
     public class CreateAccount : IWriteOperation<MakeNewAccount>
     {
-        public IEventSender eventSender;
-        public CreateAccount(IEventSender eventSender)
-        {
-            this.eventSender = eventSender;
-        }
+        private readonly IEventSender _eventSender;
+        private readonly AccountOptions _accountOptions;
 
+        public CreateAccount(IEventSender eventSender, AccountOptions accountOptions)
+        {
+            _eventSender = eventSender;
+            _accountOptions = accountOptions;
+        }
 
         public void PerformOperation(MakeNewAccount operation)
         {
-            var random = new Random();
-
             var database = Database.GetInstance();
 
-
-            var user = database.Persons?.First(e => e.Cnp == operation.UniqueIdentifier);
+            var user = database.Persons.FirstOrDefault(e => e.Cnp == operation.UniqueIdentifier);
             if (user == null)
             {
                 throw new Exception("User invalid");
             }
 
-
-
-            //database.Persons.Remove(user);
-            var account = new BankAccount();
-            account.Type = operation.AccountType;
-            account.Currency = operation.Valuta;
-            account.Balance = 0;
-            account.Iban = NewIban.GetNewIban();
-            account.Limit = 200;
+            var account = new BankAccount
+            {
+                Type = operation.AccountType,
+                Currency = operation.Valuta,
+                Balance = _accountOptions.InitialBalance,
+                Iban = NewIban.GetNewIban(),
+                Limit = 200
+            };
 
             database.BankAccounts.Add(account);
             user.Accounts.Add(account);
             database.SaveChanges();
-            //database.Persons.Add(user);
 
-            AccountMade ec = new AccountMade();
-
-            ec.Name = user.Name;
-            eventSender.SendEvent(ec);
-
-
-
-
-
-
-
+            AccountMade ec = new AccountMade
+            {
+                Name = user.Name
+            };
+            _eventSender.SendEvent(ec);
         }
-
     }
 }
