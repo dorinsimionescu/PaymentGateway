@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PaymentGateway.Application.ReadOperations
+namespace PaymentGateway.Application.Services
 {
     public class NewIban
     {

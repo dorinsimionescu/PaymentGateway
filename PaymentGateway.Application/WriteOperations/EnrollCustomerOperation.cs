@@ -1,5 +1,5 @@
 ﻿using Abstractions;
-using PaymentGateway.Application.ReadOperations;
+using PaymentGateway.Application.Services;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.WriteSide;
@@ -21,11 +21,11 @@ namespace PaymentGateway.Application.WriteOperations
 
         public void PerformOperation(EnrollCustomer operation)
         {
-            var customer = new Person();
-
-
-            customer.Cnp = operation.UniqueIdentifier;
-            customer.Name = operation.Name;
+            var customer = new Person
+            {
+                Cnp = operation.UniqueIdentifier,
+                Name = operation.Name
+            };
             if (operation.ClientType == "Company")
             {
                 customer.TypeOfPerson = PersonType.Company;
@@ -40,6 +40,7 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Unsupported person type");
             }
 
+            customer.Id = _database.Persons.Count + 1;
             _database.Persons.Add(customer);
 
             var account = new BankAccount();

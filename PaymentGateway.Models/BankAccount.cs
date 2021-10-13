@@ -1,10 +1,9 @@
-﻿using System;
-
-namespace PaymentGateway.Models
+﻿namespace PaymentGateway.Models
 {
     public class BankAccount
     {
         public int Id { get; set; }
+        public int PersonId { get; set; }
         public double Balance { get; set; }
         public string Currency { get; set; }
         public string Iban { get; set; }

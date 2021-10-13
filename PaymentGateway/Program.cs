@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentGateway.Application;
 using PaymentGateway.Application.ReadOperations;
+using PaymentGateway.Application.Services;
 using PaymentGateway.Application.WriteOperations;
 using PaymentGateway.Data;
 using PaymentGateway.ExternalService;
@@ -29,10 +30,10 @@ namespace PaymentGateway
             // setup
             var services = new ServiceCollection();
             services.RegisterBusinessServices(Configuration);
-            
+
             services.AddSingleton<IEventSender, EventSender>();
             services.AddSingleton(Configuration);
-          
+
             // build
             var serviceProvider = services.BuildServiceProvider();
             var database = serviceProvider.GetRequiredService<Database>();
@@ -57,7 +58,7 @@ namespace PaymentGateway
                 AccountType = "Debit",
                 Valuta = "Eur"
             };
-            var makeAccountOperation = serviceProvider.GetRequiredService<CreateAccount>(); 
+            var makeAccountOperation = serviceProvider.GetRequiredService<CreateAccount>();
             makeAccountOperation.PerformOperation(makeAccountDetails);
 
 
@@ -138,6 +139,16 @@ namespace PaymentGateway
 
             var purchaseProduct = serviceProvider.GetRequiredService<PurchaseProduct>();
             purchaseProduct.PerformOperation(comanda);
+
+
+            var query = new Application.ReadOperations.ListOfAccounts.Query
+            {
+                PersonId = 1
+            };
+
+            var handler = serviceProvider.GetRequiredService<ListOfAccounts.QueryHandler>();
+            var result = handler.PerformOperation(query);
+
         }
     }
 }
