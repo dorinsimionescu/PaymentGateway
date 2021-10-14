@@ -14,20 +14,20 @@ namespace PaymentGateway.Application.WriteOperations
 {
     public class CreateAccount : IRequestHandler<MakeNewAccount>
     {
-        private readonly IEventSender _eventSender;
+        private readonly IMediator _mediator;
         private readonly AccountOptions _accountOptions;
         private readonly Database _database;
         private readonly NewIban _ibanService;
 
-        public CreateAccount(IEventSender eventSender, AccountOptions accountOptions, Database database, NewIban ibanService)
+        public CreateAccount(IMediator mediator, AccountOptions accountOptions, Database database, NewIban ibanService)
         {
-            _eventSender = eventSender;
+            _mediator = mediator;
             _accountOptions = accountOptions;
             _database = database;
             _ibanService = ibanService;
         }
 
-        public Task<Unit> Handle(MakeNewAccount request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(MakeNewAccount request, CancellationToken cancellationToken)
         {
             var user = _database.Persons.FirstOrDefault(e => e.Cnp == request.UniqueIdentifier);
             if (user == null)
@@ -52,8 +52,8 @@ namespace PaymentGateway.Application.WriteOperations
             {
                 Name = user.Name
             };
-            _eventSender.SendEvent(ec);
-            return Unit.Task;
+            await _mediator.Publish(ec, cancellationToken);
+            return Unit.Value;
         }        
     }
 }
