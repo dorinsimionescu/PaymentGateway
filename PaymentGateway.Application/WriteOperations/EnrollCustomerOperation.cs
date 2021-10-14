@@ -4,6 +4,7 @@ using PaymentGateway.Application.Services;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Commands;
+using PaymentGateway.PublishedLanguage.Events;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace PaymentGateway.Application.WriteOperations
 
             _database.SaveChanges();
 
-            EnrollCustomer ec = new EnrollCustomer
+            var ec = new CustomerEnrolled
             {
                 Name = customer.Name,
                 UniqueIdentifier = customer.Cnp,
