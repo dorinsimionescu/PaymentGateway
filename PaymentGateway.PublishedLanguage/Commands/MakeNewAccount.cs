@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediatR;
 
-namespace PaymentGateway.PublishedLanguage.WriteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-    public class MakeNewAccount
+    public class MakeNewAccount : IRequest
     {
         public string UniqueIdentifier { get; set; }
         public string AccountType { get; set; }

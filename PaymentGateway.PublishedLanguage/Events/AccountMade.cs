@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace PaymentGateway.PublishedLanguage.Events
 {
-   public class AccountMade
+    public class AccountMade: INotification
     {
-        public String Name { get; set; }
-        
+        public string Name { get; set; }
     }
 }

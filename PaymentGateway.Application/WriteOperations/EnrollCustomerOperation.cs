@@ -1,13 +1,16 @@
 ﻿using Abstractions;
+using MediatR;
 using PaymentGateway.Application.Services;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
-using PaymentGateway.PublishedLanguage.WriteSide;
+using PaymentGateway.PublishedLanguage.Commands;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
-    public class EnrollCustomerOperation : IWriteOperation<EnrollCustomer>
+    public class EnrollCustomerOperation : IRequestHandler<EnrollCustomer>
     {
         private readonly IEventSender _eventSender;
         private readonly Database _database;
@@ -19,19 +22,19 @@ namespace PaymentGateway.Application.WriteOperations
             _ibanService = ibanService;
         }
 
-        public void PerformOperation(EnrollCustomer operation)
+        public Task<Unit> Handle(EnrollCustomer request, CancellationToken cancellationToken)
         {
             var customer = new Person
             {
-                Cnp = operation.UniqueIdentifier,
-                Name = operation.Name
+                Cnp = request.UniqueIdentifier,
+                Name = request.Name
             };
-            if (operation.ClientType == "Company")
+            if (request.ClientType == "Company")
             {
                 customer.TypeOfPerson = PersonType.Company;
             }
 
-            else if (operation.ClientType == "Individual")
+            else if (request.ClientType == "Individual")
             {
                 customer.TypeOfPerson = PersonType.Individual;
             }
@@ -44,8 +47,8 @@ namespace PaymentGateway.Application.WriteOperations
             _database.Persons.Add(customer);
 
             var account = new BankAccount();
-            account.Type = operation.AccountType;
-            account.Currency = operation.Valuta;
+            account.Type = request.AccountType;
+            account.Currency = request.Valuta;
             account.Balance = 0;
             account.Iban = _ibanService.GetNewIban();
 
@@ -56,9 +59,9 @@ namespace PaymentGateway.Application.WriteOperations
             EnrollCustomer ec = new EnrollCustomer();
             ec.Name = customer.Name;
             ec.UniqueIdentifier = customer.Cnp;
-            ec.ClientType = operation.ClientType;
+            ec.ClientType = request.ClientType;
             _eventSender.SendEvent(ec);
-
+            return Unit.Task;
         }
     }
 }

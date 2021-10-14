@@ -1,13 +1,10 @@
-﻿using PaymentGateway.Models;
-using System;
+﻿using MediatR;
+using PaymentGateway.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PaymentGateway.PublishedLanguage.WriteSide
+namespace PaymentGateway.PublishedLanguage.Commands
 {
-     public class Command
+    public class Command : IRequest
     {
         public List<CommandDetails> Details { get; set; } = new List<CommandDetails>();
         public string Cnp { get; set; }
