@@ -1,4 +1,5 @@
 ﻿using Abstractions;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentGateway.Application;
@@ -29,6 +30,9 @@ namespace PaymentGateway
 
             // setup
             var services = new ServiceCollection();
+
+            services.AddMediatR(typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly); 
+
             services.RegisterBusinessServices(Configuration);
 
             //services.AddSingleton<IEventSender, EventSender>();
