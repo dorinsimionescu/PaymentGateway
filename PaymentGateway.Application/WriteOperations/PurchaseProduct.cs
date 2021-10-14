@@ -4,9 +4,7 @@ using PaymentGateway.Data;
 using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Commands;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +34,7 @@ namespace PaymentGateway.Application.WriteOperations
             double total = 0;
             foreach (var item in request.Details)
             {
-                Product product = _database.Products.FirstOrDefault(x => x.ID == item.idProd);
+                Product product = _database.Products.FirstOrDefault(x => x.Id == item.ProductId);
 
                 if (product.Limit < item.Quantity)
                 {
@@ -51,7 +49,7 @@ namespace PaymentGateway.Application.WriteOperations
 
                 ProductXTransaction pxt = new ProductXTransaction
                 {
-                    IdProduct = product.ID,
+                    IdProduct = product.Id,
                     IdTransaction = transaction.ID,
                     Quantity = item.Quantity
                 };

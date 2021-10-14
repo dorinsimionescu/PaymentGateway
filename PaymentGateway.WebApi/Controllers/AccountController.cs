@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaymentGateway.Application.ReadOperations;
-using PaymentGateway.Application.WriteOperations;
+using PaymentGateway.Application.Queries;
 using PaymentGateway.PublishedLanguage.Commands;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,20 +11,18 @@ namespace PaymentGateway.WebApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly CreateAccount _createAccountCommandHandler;
-        private readonly ListOfAccounts.QueryHandler _queryHandler;
-        public AccountController(CreateAccount createAccountCommandHandler, ListOfAccounts.QueryHandler queryHandler)
+        private readonly MediatR.IMediator _mediator;
+
+        public AccountController(MediatR.IMediator mediator)
         {
-            _createAccountCommandHandler = createAccountCommandHandler;
-            _queryHandler = queryHandler;
+            _mediator = mediator;
         }
 
         [HttpPost]
         [Route("Create")]
         public async Task<string> CreateAccount(MakeNewAccount command, CancellationToken cancellationToken)
         {
-            //CreateAccount request = new CreateAccount(new EventSender());
-            await _createAccountCommandHandler.Handle(command, cancellationToken);
+            await _mediator.Send(command, cancellationToken);
             return "OK";
         }
 
@@ -35,7 +32,7 @@ namespace PaymentGateway.WebApi.Controllers
         // route: http://localhost:5000/api/Account/ListOfAccounts/1/1961231..
         public async Task<List<ListOfAccounts.Model>> GetListOfAccounts([FromQuery] ListOfAccounts.Query query, CancellationToken cancellationToken)
         {
-            var result = await _queryHandler.Handle(query, cancellationToken);
+            var result = await _mediator.Send(query, cancellationToken);
             return result;
         }
     }

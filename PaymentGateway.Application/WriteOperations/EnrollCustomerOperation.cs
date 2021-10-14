@@ -15,6 +15,7 @@ namespace PaymentGateway.Application.WriteOperations
         private readonly IEventSender _eventSender;
         private readonly Database _database;
         private readonly NewIban _ibanService;
+
         public EnrollCustomerOperation(IEventSender eventSender, Database database, NewIban ibanService)
         {
             _eventSender = eventSender;
@@ -46,20 +47,24 @@ namespace PaymentGateway.Application.WriteOperations
             customer.Id = _database.Persons.Count + 1;
             _database.Persons.Add(customer);
 
-            var account = new BankAccount();
-            account.Type = request.AccountType;
-            account.Currency = request.Valuta;
-            account.Balance = 0;
-            account.Iban = _ibanService.GetNewIban();
+            var account = new BankAccount
+            {
+                Type = request.AccountType,
+                Currency = request.Valuta,
+                Balance = 0,
+                Iban = _ibanService.GetNewIban()
+            };
 
             _database.BankAccounts.Add(account);
 
             _database.SaveChanges();
 
-            EnrollCustomer ec = new EnrollCustomer();
-            ec.Name = customer.Name;
-            ec.UniqueIdentifier = customer.Cnp;
-            ec.ClientType = request.ClientType;
+            EnrollCustomer ec = new EnrollCustomer
+            {
+                Name = customer.Name,
+                UniqueIdentifier = customer.Cnp,
+                ClientType = request.ClientType
+            };
             _eventSender.SendEvent(ec);
             return Unit.Task;
         }

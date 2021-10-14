@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PaymentGateway.Application
+﻿namespace PaymentGateway.Application
 {
     public class AccountOptions
     {

@@ -4,16 +4,14 @@ using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Events;
 using PaymentGateway.PublishedLanguage.Commands;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using System.Threading;
 
 namespace PaymentGateway.Application.WriteOperations
 {
-   public class WithdrawMoney : IRequestHandler<MakeWithdraw>
+    public class WithdrawMoney : IRequestHandler<MakeWithdraw>
     {
         public IEventSender eventSender;
         private readonly Database _database;
