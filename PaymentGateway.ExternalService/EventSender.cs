@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PaymentGateway.ExternalService
 {
-    public class AllEventsHandler: INotificationHandler<INotification>
+    public class AllEventsHandler : INotificationHandler<INotification>
     {
         public Task Handle(INotification notification, CancellationToken cancellationToken)
         {
