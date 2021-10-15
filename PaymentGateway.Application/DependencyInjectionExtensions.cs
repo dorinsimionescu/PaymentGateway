@@ -22,8 +22,6 @@ namespace PaymentGateway.Application
 
             services.AddSingleton<Data.Database>();
 
-            services.AddTransient<IValidator<Query>, Validator>();
-
             services.AddSingleton(sp =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
