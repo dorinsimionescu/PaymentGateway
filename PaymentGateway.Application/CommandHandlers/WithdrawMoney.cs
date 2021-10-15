@@ -14,24 +14,24 @@ namespace PaymentGateway.Application.WriteOperations
     public class WithdrawMoney : IRequestHandler<MakeWithdraw>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
+        private readonly PaymentDbContext _dbContext;
 
-        public WithdrawMoney(IMediator mediator, Database database)
+        public WithdrawMoney(IMediator mediator, PaymentDbContext dbContext)
         {
             _mediator = mediator;
-            _database = database;
+            _dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(MakeWithdraw request, CancellationToken cancellationToken)
         {
-            var account = _database.BankAccounts.FirstOrDefault(acc => acc.Iban == request.Iban);
+            var account = _dbContext.BankAccounts.FirstOrDefault(acc => acc.Iban == request.Iban);
             if (account == null)
             {
                 throw new Exception("invalid account");
 
             }
 
-            var user = _database.Persons.FirstOrDefault(pers => pers.Cnp == request.Cnp);
+            var user = _dbContext.Persons.FirstOrDefault(pers => pers.Cnp == request.Cnp);
             if (user == null)
             {
                 throw new Exception("User not found");
@@ -54,7 +54,7 @@ namespace PaymentGateway.Application.WriteOperations
             transaction.Date = DateTime.UtcNow;
             transaction.Type = "Withdraw";
             account.Balance -= request.Amount;
-            _database.SaveChanges();
+            _dbContext.SaveChanges();
 
             WithdrawMade wm = new WithdrawMade
             {

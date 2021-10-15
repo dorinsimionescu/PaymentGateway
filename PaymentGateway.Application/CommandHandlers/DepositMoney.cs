@@ -15,22 +15,22 @@ namespace PaymentGateway.Application.WriteOperations
     public class DepositMoney : IRequestHandler<MakeNewDeposit>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
-        public DepositMoney(IMediator mediator, Database database)
+        private readonly PaymentDbContext _dbContext;
+        public DepositMoney(IMediator mediator, PaymentDbContext dbContext)
         {
             _mediator = mediator;
-            _database = database;
+            _dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(MakeNewDeposit request, CancellationToken cancellationToken)
         {
-            var person = _database.Persons.FirstOrDefault(p => p.Cnp == request.Cnp);
+            var person = _dbContext.Persons.FirstOrDefault(p => p.Cnp == request.Cnp);
             if (person == null)
             {
                 throw new Exception("User Not Found");
             }
 
-            var account = _database.BankAccounts.FirstOrDefault(acc => acc.Iban == request.Iban);
+            var account = _dbContext.BankAccounts.FirstOrDefault(acc => acc.Iban == request.Iban);
             if (account == null)
             {
                 throw new Exception("Account Not Found");
@@ -43,7 +43,7 @@ namespace PaymentGateway.Application.WriteOperations
             transaction.Type = "Depunere";
 
             account.Balance += request.Amount;
-            _database.SaveChanges();
+            _dbContext.SaveChanges();
 
             var dm = new DepositMade();
             dm.Name = person.Name;

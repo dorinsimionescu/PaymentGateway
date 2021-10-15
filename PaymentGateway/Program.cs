@@ -57,7 +57,7 @@ namespace PaymentGateway
 
             // build
             var serviceProvider = services.BuildServiceProvider();
-            var database = serviceProvider.GetRequiredService<Database>();
+            var database = serviceProvider.GetRequiredService<PaymentDbContext>();
             var ibanService = serviceProvider.GetRequiredService<NewIban>();
             var mediator = serviceProvider.GetRequiredService<IMediator>();
 

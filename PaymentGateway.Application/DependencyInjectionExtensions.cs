@@ -20,7 +20,7 @@ namespace PaymentGateway.Application
 
             services.AddSingleton<NewIban>();
 
-            services.AddSingleton<Data.Database>();
+            services.AddSingleton<Data.PaymentDbContext>();
 
             services.AddSingleton(sp =>
             {

@@ -13,11 +13,11 @@ namespace PaymentGateway.Application.WriteOperations
     public class PurchaseProduct : IRequestHandler<Command>
     {
         private readonly IMediator _mediator;
-        private readonly Database _database;
+        private readonly PaymentDbContext _dbContext;
 
-        public PurchaseProduct(IMediator mediator, Database database)
+        public PurchaseProduct(IMediator mediator, PaymentDbContext dbContext)
         {
-            _database = database;
+            _dbContext = dbContext;
             _mediator = mediator;
         }
 
@@ -25,7 +25,7 @@ namespace PaymentGateway.Application.WriteOperations
         {
             Transaction transaction = new Transaction();
 
-            BankAccount account = _database.BankAccounts.FirstOrDefault(x => x.Iban == request.Iban);
+            BankAccount account = _dbContext.BankAccounts.FirstOrDefault(x => x.Iban == request.Iban);
 
             if (account == null)
             {
@@ -34,7 +34,7 @@ namespace PaymentGateway.Application.WriteOperations
             double total = 0;
             foreach (var item in request.Details)
             {
-                Product product = _database.Products.FirstOrDefault(x => x.Id == item.ProductId);
+                Product product = _dbContext.Products.FirstOrDefault(x => x.Id == item.ProductId);
 
                 if (product.Limit < item.Quantity)
                 {
@@ -50,17 +50,17 @@ namespace PaymentGateway.Application.WriteOperations
                 ProductXTransaction pxt = new ProductXTransaction
                 {
                     IdProduct = product.Id,
-                    IdTransaction = transaction.ID,
+                    IdTransaction = transaction.Id,
                     Quantity = item.Quantity
                 };
                 product.Limit -= item.Quantity;
 
 
-                _database.ProductXTransaction.Add(pxt);
+                _dbContext.ProductXTransaction.Add(pxt);
             }
 
 
-            _database.SaveChanges();
+            _dbContext.SaveChanges();
             return Unit.Task;
         }
        
