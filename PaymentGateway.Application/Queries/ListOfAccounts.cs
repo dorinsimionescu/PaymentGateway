@@ -29,13 +29,23 @@ namespace PaymentGateway.Application.Queries
 
         public class Validator2 : AbstractValidator<Query>
         {
-            public Validator2(Database _database)
+            public Validator2(Database database)
             {
-                //this.Include<Validator>(r=> r.Cnp);
-                RuleFor(q => q).Must(query =>
+                RuleFor(q => q.PersonId).Must(personId =>
                 {
-                    return query.PersonId.HasValue && !string.IsNullOrEmpty(query.Cnp);
-                }).WithMessage("Customer data is invalid");
+                    return personId.HasValue;
+                }).WithMessage("Customer data is invalid - personid");
+
+                RuleFor(q => q.Cnp).Must(cnp=>
+                {
+                    return !string.IsNullOrEmpty(cnp);
+                }).WithMessage("CNP is empty");
+
+                RuleFor(q => q.PersonId).Must(personId =>
+                {
+                    var exists = database.Persons.Any(x => x.Id == personId);
+                    return exists;
+                }).WithMessage("Customer does not exist");
             }
         }
 
