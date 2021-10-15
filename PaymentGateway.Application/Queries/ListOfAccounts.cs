@@ -31,21 +31,28 @@ namespace PaymentGateway.Application.Queries
         {
             public Validator2(Database database)
             {
-                RuleFor(q => q.PersonId).Must(personId =>
+                RuleFor(q => q).Must(q=>
                 {
-                    return personId.HasValue;
-                }).WithMessage("Customer data is invalid - personid");
+                    return q.PersonId.HasValue || !string.IsNullOrEmpty(q.Cnp);
+                }).WithMessage("Customer data is invalid");
 
                 RuleFor(q => q.Cnp).Must(cnp=>
                 {
-                    return !string.IsNullOrEmpty(cnp);
-                }).WithMessage("CNP is empty");
+                    if (string.IsNullOrEmpty(cnp))
+                    {
+                        return true;
+                    }
+                    return cnp.Length == 13;
+                }).WithMessage("CNP has wrong lenght. Expected 13");
 
                 RuleFor(q => q.PersonId).Must(personId =>
                 {
-                    var exists = database.Persons.Any(x => x.Id == personId);
-                    return exists;
-                }).WithMessage("Customer does not exist");
+                    if (!personId.HasValue)
+                    {
+                        return true;
+                    }
+                    return personId.Value > 0;
+                }).WithMessage("Person id is not positive");
             }
         }
 
