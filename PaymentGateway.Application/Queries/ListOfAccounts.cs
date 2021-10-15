@@ -31,14 +31,11 @@ namespace PaymentGateway.Application.Queries
         {
             public Validator2(Database _database)
             {
+                //this.Include<Validator>(r=> r.Cnp);
                 RuleFor(q => q).Must(query =>
                 {
-                    var person = query.PersonId.HasValue ?
-                    _database.Persons.FirstOrDefault(x => x.Id == query.PersonId) :
-                    _database.Persons.FirstOrDefault(x => x.Cnp == query.Cnp);
-
-                    return person != null;
-                }).WithMessage("Customer not found");
+                    return query.PersonId.HasValue && !string.IsNullOrEmpty(query.Cnp);
+                }).WithMessage("Customer data is invalid");
             }
         }
 
