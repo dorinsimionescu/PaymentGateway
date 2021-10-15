@@ -4,7 +4,7 @@
     {
         public int IdTransaction { get; set; }
         public int IdProduct { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
     }
 }

@@ -45,10 +45,12 @@ namespace PaymentGateway.Application.WriteOperations
             account.Balance += request.Amount;
             _dbContext.SaveChanges();
 
-            var dm = new DepositMade();
-            dm.Name = person.Name;
-            dm.Amount = request.Amount;
-            dm.Iban = request.Iban;
+            var dm = new DepositMade
+            {
+                Name = person.Name,
+                Amount = request.Amount,
+                Iban = request.Iban
+            };
             await _mediator.Publish(dm, cancellationToken);
             return Unit.Value;
         }

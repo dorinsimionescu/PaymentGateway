@@ -1,20 +1,33 @@
-﻿using PaymentGateway.Models;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using PaymentGateway.Data.EntityTypeConfiguration;
+using PaymentGateway.Models;
 
 namespace PaymentGateway.Data
 {
-    public class PaymentDbContext
+    public class PaymentDbContext : DbContext
     {
-        public List<Person> Persons = new List<Person>();
-        public List<Product> Products = new List<Product>();
-        public List<BankAccount> BankAccounts = new List<BankAccount>();
-        public List<Transaction> Transactions = new List<Transaction>();
-        public List<ProductXTransaction> ProductXTransaction = new List<ProductXTransaction>();
-
-        public void SaveChanges()
+        /*
+         * DbContextOptions<PaymentDbContext> and must pass it to the base constructor for DbContext.'
+         */
+        public PaymentDbContext(DbContextOptions<PaymentDbContext> options) : base(options)
         {
-            Console.WriteLine("Changes Saved.....");
+
+        }
+        public DbSet<Person> Persons { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<BankAccount> BankAccounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<ProductXTransaction> ProductXTransaction { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Product>().HasKey(x => x.Id);
+            modelBuilder.Entity<Product>().Property(x => x.Id);//.HasColumnName("IdUlMeuSpecial");
+
+            modelBuilder.Entity<ProductXTransaction>().HasKey(x => new { x.IdProduct, x.IdTransaction });
+
+            modelBuilder.ApplyConfiguration(new PersonConfiguration());
         }
     }
 }

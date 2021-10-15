@@ -31,7 +31,7 @@ namespace PaymentGateway.Application.WriteOperations
             {
                 throw new Exception("Invalid Account");
             }
-            double total = 0;
+            decimal total = 0;
             foreach (var item in request.Details)
             {
                 Product product = _dbContext.Products.FirstOrDefault(x => x.Id == item.ProductId);
@@ -63,6 +63,5 @@ namespace PaymentGateway.Application.WriteOperations
             _dbContext.SaveChanges();
             return Unit.Task;
         }
-       
     }
 }

@@ -6,6 +6,7 @@ using PaymentGateway.Models;
 using PaymentGateway.PublishedLanguage.Commands;
 using PaymentGateway.PublishedLanguage.Events;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,7 +46,6 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Unsupported person type");
             }
 
-            customer.Id = _dbContext.Persons.Count + 1;
             _dbContext.Persons.Add(customer);
 
             var account = new BankAccount
@@ -53,7 +53,8 @@ namespace PaymentGateway.Application.WriteOperations
                 Type = request.AccountType,
                 Currency = request.Valuta,
                 Balance = 0,
-                Iban = _ibanService.GetNewIban()
+                Iban = _ibanService.GetNewIban(),
+                Status = "Active"
             };
 
             _dbContext.BankAccounts.Add(account);

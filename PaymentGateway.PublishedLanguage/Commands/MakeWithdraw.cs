@@ -7,6 +7,6 @@ namespace PaymentGateway.PublishedLanguage.Commands
     {
         public String Cnp { get; set; }
         public string Iban { get; set; }
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

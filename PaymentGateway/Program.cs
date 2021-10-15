@@ -37,6 +37,7 @@ namespace PaymentGateway
             var source = new CancellationTokenSource();
             var cancellationToken = source.Token;
             services.RegisterBusinessServices(Configuration);
+            services.AddPaymentDataAccess(Configuration);
 
             services.Scan(scan => scan
                 .FromAssemblyOf<ListOfAccounts>()
@@ -68,7 +69,7 @@ namespace PaymentGateway
                 AccountType = "Debit",
                 Name = "Gigi Popa",
                 Valuta = "Eur",
-                UniqueIdentifier = "23"
+                UniqueIdentifier = Guid.NewGuid().ToString()
             };
 
             //var enrollCustomerOperation = serviceProvider.GetRequiredService<EnrollCustomerOperation>();
@@ -112,7 +113,6 @@ namespace PaymentGateway
 
             var produs = new Product
             {
-                Id = 1,
                 Limit = 10,
                 Name = "Pantofi",
                 Currency = "Eur",
@@ -121,7 +121,6 @@ namespace PaymentGateway
 
             var produs1 = new Product
             {
-                Id = 2,
                 Limit = 5,
                 Name = "pantaloni",
                 Currency = "Eur",
@@ -130,7 +129,6 @@ namespace PaymentGateway
 
             var produs2 = new Product
             {
-                Id = 3,
                 Limit = 3,
                 Name = "Camasa",
                 Currency = "Eur",
@@ -140,6 +138,8 @@ namespace PaymentGateway
             database.Products.Add(produs);
             database.Products.Add(produs1);
             database.Products.Add(produs2);
+
+            database.SaveChanges();
 
             var listaProduse = new List<CommandDetails>();
 

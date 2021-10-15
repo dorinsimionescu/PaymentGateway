@@ -48,11 +48,13 @@ namespace PaymentGateway.Application.WriteOperations
             {
                 throw new Exception("insufficient funds");
             }
-            var transaction = new Transaction();
-            transaction.Amount = request.Amount;
-            transaction.Currency = account.Currency;
-            transaction.Date = DateTime.UtcNow;
-            transaction.Type = "Withdraw";
+            var transaction = new Transaction
+            {
+                Amount = request.Amount,
+                Currency = account.Currency,
+                Date = DateTime.UtcNow,
+                Type = "Withdraw"
+            };
             account.Balance -= request.Amount;
             _dbContext.SaveChanges();
 
