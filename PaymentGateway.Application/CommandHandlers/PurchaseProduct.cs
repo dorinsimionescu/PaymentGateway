@@ -23,15 +23,25 @@ namespace PaymentGateway.Application.WriteOperations
 
         public Task<Unit> Handle(Command request, CancellationToken cancellationToken)
         {
-            Transaction transaction = new Transaction();
 
-            BankAccount account = _dbContext.BankAccounts.FirstOrDefault(x => x.Iban == request.Iban);
+            var account = _dbContext.BankAccounts.FirstOrDefault(x => x.Iban == request.Iban);
 
             if (account == null)
             {
                 throw new Exception("Invalid Account");
             }
+
             decimal total = 0;
+
+            var transaction = new Transaction
+            {
+                Currency = account.Currency,
+                Date = DateTime.UtcNow,
+                Type = "Purchase",
+                AccountId = account.Id
+            };
+            _dbContext.Transactions.Add(transaction);
+            _dbContext.SaveChanges();
             foreach (var item in request.Details)
             {
                 Product product = _dbContext.Products.FirstOrDefault(x => x.Id == item.ProductId);
@@ -58,7 +68,7 @@ namespace PaymentGateway.Application.WriteOperations
 
                 _dbContext.ProductXTransaction.Add(pxt);
             }
-
+            transaction.Amount = total;
 
             _dbContext.SaveChanges();
             return Unit.Task;
