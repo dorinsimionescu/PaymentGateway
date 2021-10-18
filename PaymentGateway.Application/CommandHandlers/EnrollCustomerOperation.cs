@@ -34,12 +34,12 @@ namespace PaymentGateway.Application.WriteOperations
             };
             if (request.ClientType == "Company")
             {
-                customer.TypeOfPerson = PersonType.Company;
+                customer.TypeOfPerson = (int)PersonType.Company;
             }
 
             else if (request.ClientType == "Individual")
             {
-                customer.TypeOfPerson = PersonType.Individual;
+                customer.TypeOfPerson = (int)PersonType.Individual;
             }
             else
             {

@@ -57,7 +57,7 @@ namespace PaymentGateway.Application.WriteOperations
                     throw new Exception("Insufficient funds");
                 }
 
-                ProductXTransaction pxt = new ProductXTransaction
+                var pxt = new ProductXtransaction
                 {
                     IdProduct = product.Id,
                     IdTransaction = transaction.Id,
@@ -66,7 +66,7 @@ namespace PaymentGateway.Application.WriteOperations
                 product.Limit -= item.Quantity;
 
 
-                _dbContext.ProductXTransaction.Add(pxt);
+                _dbContext.ProductXtransactions.Add(pxt);
             }
             transaction.Amount = total;
 

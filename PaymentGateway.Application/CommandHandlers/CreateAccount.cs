@@ -45,7 +45,6 @@ namespace PaymentGateway.Application.WriteOperations
             };
 
             _dbContext.BankAccounts.Add(account);
-            user.Accounts.Add(account);
             _dbContext.SaveChanges();
 
             AccountMade ec = new AccountMade

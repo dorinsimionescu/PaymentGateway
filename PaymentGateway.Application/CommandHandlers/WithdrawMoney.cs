@@ -36,10 +36,11 @@ namespace PaymentGateway.Application.WriteOperations
             {
                 throw new Exception("User not found");
             }
-            if (user.Accounts.FindIndex(r => r.Iban == account.Iban) == -1)
-            {
-                throw new Exception("invalid attempt");
-            }
+            // todo: refactor
+            //if (user.Accounts.FindIndex(r => r.Iban == account.Iban) == -1)
+            //{
+            //    throw new Exception("invalid attempt");
+            //}
             if (account.Limit < request.Amount)
             {
                 throw new Exception("cannot withdraw this amount");

@@ -131,7 +131,7 @@ namespace PaymentGateway.Application.Queries
             public string Currency { get; set; }
             public string Iban { get; set; }
             public string Status { get; set; }
-            public decimal Limit { get; set; }
+            public decimal? Limit { get; set; }
             public string Type { get; set; }
         }
     }

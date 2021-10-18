@@ -1,33 +1,124 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PaymentGateway.Data.EntityTypeConfiguration;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using PaymentGateway.Models;
+
+#nullable disable
 
 namespace PaymentGateway.Data
 {
-    public class PaymentDbContext : DbContext
+    public partial class PaymentDbContext : DbContext
     {
-        /*
-         * DbContextOptions<PaymentDbContext> and must pass it to the base constructor for DbContext.'
-         */
-        public PaymentDbContext(DbContextOptions<PaymentDbContext> options) : base(options)
+        public PaymentDbContext(DbContextOptions<PaymentDbContext> options)
+            : base(options)
         {
-
         }
-        public DbSet<Person> Persons { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<BankAccount> BankAccounts { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<ProductXTransaction> ProductXTransaction { get; set; }
+
+        public virtual DbSet<BankAccount> BankAccounts { get; set; }
+        public virtual DbSet<Person> Persons { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<ProductXtransaction> ProductXtransactions { get; set; }
+        public virtual DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Product>().HasKey(x => x.Id);
-            modelBuilder.Entity<Product>().Property(x => x.Id);//.HasColumnName("IdUlMeuSpecial");
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
-            modelBuilder.Entity<ProductXTransaction>().HasKey(x => new { x.IdProduct, x.IdTransaction });
+            modelBuilder.Entity<BankAccount>(entity =>
+            {
+                entity.Property(e => e.Balance).HasColumnType("money");
 
-            modelBuilder.ApplyConfiguration(new PersonConfiguration());
+                entity.Property(e => e.Currency)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.Iban)
+                    .IsRequired()
+                    .HasMaxLength(250);
+
+                entity.Property(e => e.Limit).HasColumnType("money");
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Person>(entity =>
+            {
+                entity.HasIndex(e => e.Cnp, "IX_Person")
+                    .IsUnique();
+
+                entity.Property(e => e.Cnp)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.Property(e => e.Currency)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Limit).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Value).HasColumnType("money");
+            });
+
+            modelBuilder.Entity<ProductXtransaction>(entity =>
+            {
+                entity.HasKey(e => new { e.IdTransaction, e.IdProduct });
+
+                entity.ToTable("ProductXTransaction");
+
+                entity.HasOne(d => d.IdProductNavigation)
+                    .WithMany(p => p.ProductXtransactions)
+                    .HasForeignKey(d => d.IdProduct)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductXTransaction_Product");
+
+                entity.HasOne(d => d.IdTransactionNavigation)
+                    .WithMany(p => p.ProductXtransactions)
+                    .HasForeignKey(d => d.IdTransaction)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductXTransaction_Transaction");
+            });
+
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.Property(e => e.Amount).HasColumnType("money");
+
+                entity.Property(e => e.Currency)
+                    .IsRequired()
+                    .HasMaxLength(3);
+
+                entity.Property(e => e.Date).HasColumnType("datetime");
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.HasOne(d => d.Account)
+                    .WithMany(p => p.Transactions)
+                    .HasForeignKey(d => d.AccountId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Transactions_BankAccounts");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
