@@ -13,6 +13,7 @@ using MediatR.Pipeline;
 using FluentValidation;
 using PaymentGateway.WebApi.MediatorPipeline;
 using PaymentGateway.WebApi.Middleware;
+using AutoMapper;
 
 namespace PaymentGateway.WebApi
 {
@@ -37,6 +38,7 @@ namespace PaymentGateway.WebApi
                 .WithScopedLifetime());
 
             services.AddMediatR(new[] { typeof(ListOfAccounts).Assembly, typeof(AllEventsHandler).Assembly }); // get all IRequestHandler and INotificationHandler classes
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));

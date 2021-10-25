@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using System.Threading;
+using AutoMapper;
 
 namespace PaymentGateway.Application.WriteOperations
 {
@@ -15,11 +16,13 @@ namespace PaymentGateway.Application.WriteOperations
     {
         private readonly IMediator _mediator;
         private readonly PaymentDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public WithdrawMoney(IMediator mediator, PaymentDbContext dbContext)
+        public WithdrawMoney(IMediator mediator, PaymentDbContext dbContext, IMapper mapper)
         {
             _mediator = mediator;
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(MakeWithdraw request, CancellationToken cancellationToken)
@@ -59,11 +62,12 @@ namespace PaymentGateway.Application.WriteOperations
             account.Balance -= request.Amount;
             _dbContext.SaveChanges();
 
-            WithdrawMade wm = new WithdrawMade
-            {
-                Amount = request.Amount,
-                Iban = request.Iban
-            };
+            var wm = _mapper.Map<WithdrawMade>(request);
+            //var wm = new WithdrawMade
+            //{
+            //    Amount = request.Amount,
+            //    Iban = request.Iban
+            //};
             await _mediator.Publish(wm, cancellationToken);
             return Unit.Value;
         }

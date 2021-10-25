@@ -1,13 +1,13 @@
-﻿using Abstractions;
+﻿using AutoMapper;
+using MediatR;
 using PaymentGateway.Data;
 using PaymentGateway.Models;
-using PaymentGateway.PublishedLanguage.Events;
 using PaymentGateway.PublishedLanguage.Commands;
+using PaymentGateway.PublishedLanguage.Events;
 using System;
 using System.Linq;
-using MediatR;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PaymentGateway.Application.WriteOperations
 {
@@ -16,10 +16,12 @@ namespace PaymentGateway.Application.WriteOperations
     {
         private readonly IMediator _mediator;
         private readonly PaymentDbContext _dbContext;
-        public DepositMoney(IMediator mediator, PaymentDbContext dbContext)
+        private readonly IMapper _mapper;
+        public DepositMoney(IMediator mediator, PaymentDbContext dbContext, IMapper mapper)
         {
             _mediator = mediator;
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(MakeNewDeposit request, CancellationToken cancellationToken)
@@ -36,21 +38,27 @@ namespace PaymentGateway.Application.WriteOperations
                 throw new Exception("Account Not Found");
             }
 
-            var transaction = new Transaction();
-            transaction.Amount = request.Amount;
-            transaction.Currency = request.Currency;
-            transaction.Date = DateTime.UtcNow;
-            transaction.Type = "Depunere";
+            var transaction = new Transaction
+            {
+                Amount = request.Amount,
+                Currency = request.Currency,
+                Date = DateTime.UtcNow,
+                Type = "Depunere"
+            };
 
             account.Balance += request.Amount;
             _dbContext.SaveChanges();
 
-            var dm = new DepositMade
-            {
-                Name = person.Name,
-                Amount = request.Amount,
-                Iban = request.Iban
-            };
+            // if DepositMade has 10 fields, constructing it can be time consuming
+            //var dm = new DepositMade
+            //{
+            //    Name = person.Name,
+            //    Amount = request.Amount,
+            //    Iban = request.Iban
+            //};
+            // automapper is working based on same fields name
+            var dm = _mapper.Map<DepositMade>(request);
+
             await _mediator.Publish(dm, cancellationToken);
             return Unit.Value;
         }

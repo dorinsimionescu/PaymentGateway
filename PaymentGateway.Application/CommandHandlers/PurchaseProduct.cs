@@ -44,7 +44,7 @@ namespace PaymentGateway.Application.WriteOperations
             _dbContext.SaveChanges();
             foreach (var item in request.Details)
             {
-                Product product = _dbContext.Products.FirstOrDefault(x => x.Id == item.ProductId);
+                var product = _dbContext.Products.FirstOrDefault(x => x.Id == item.ProductId);
 
                 if (product.Limit < item.Quantity)
                 {
